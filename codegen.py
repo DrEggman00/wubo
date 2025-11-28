@@ -40,173 +40,223 @@ class CodeGen:
             return f"push {op[1]}"
         if isinstance(op, tuple) and op[0] == "str":
             return f"push \"{op[1]}\""
+"""
+CodeGen atualizado para gerar assembly NASM (Intel x86_64 SysV).
 
-        # variável ou temp
-        if op in self.varmap:
-            return f"push [mem+{self.varmap[op]}]"
-        if op in self.tempmap:
-            return f"push [mem+{self.tempmap[op]}]"
+Gera .data com literais de string, .bss com vetor `mem`, e .text com funções/labels.
+Usa `printf`/`scanf`/`puts` para I/O.
+"""
 
-        # se não existe ainda, aloca como var
-        self.alloc(op)
-        return f"push [mem+{self.varmap[op]}]"
+from typing import List, Tuple, Any
 
-    def generate(self, ir: List[Instr]):
-        """Converte lista de IR em assembly."""
-        self.asm = []
+Instr = Tuple[Any, ...]
+
+
+class CodeGen:
+    def __init__(self):
+        pass
+
+    def generate(self, ir: List[Instr]) -> str:
+        # gather mem names (variables and temps) and strings
+        mem_names = []
+        temps = []
+        strings = {}
+        str_count = 0
+
+        for ins in ir:
+            for item in ins[1:]:
+                if isinstance(item, str):
+                    if item.startswith('t'):
+                        if item not in temps:
+                            temps.append(item)
+                    else:
+                        if item not in mem_names:
+                            mem_names.append(item)
+                elif isinstance(item, tuple) and item[0] == 'str':
+                    s = item[1]
+                    # strip surrounding quotes
+                    if len(s) >= 2 and ((s[0] == '"' and s[-1] == '"') or (s[0] == "'" and s[-1] == "'")):
+                        s = s[1:-1]
+                    if s not in strings:
+                        strings[s] = f'.Lstr{str_count}'
+                        str_count += 1
+
+        all_mem = mem_names + temps
+        mem_map = {n: i for i, n in enumerate(all_mem)}
+
+        lines: List[str] = []
+        # data
+        lines.append('section .data')
+        lines.append('fmt_int: db "%ld", 10, 0')
+        lines.append('fmt_read: db "%ld", 0')
+        for s, lbl in strings.items():
+            esc = s.replace('\\', '\\\\').replace('"', '\\"')
+            lines.append(f'{lbl}: db "{esc}",0')
+
+        # bss
+        lines.append('')
+        lines.append('section .bss')
+        lines.append(f'mem: resq {len(all_mem) if all_mem else 1}')
+
+        # text
+        lines.append('')
+        lines.append('section .text')
+        lines.append('global main')
+        lines.append('extern printf, scanf, puts')
+        lines.append('')
+
+        def operand_to_imm(op):
+            if isinstance(op, tuple):
+                if op[0] == 'imm':
+                    return ('imm', int(op[1]))
+                if op[0] == 'str':
+                    s = op[1]
+                    if len(s) >= 2 and ((s[0] == '"' and s[-1] == '"') or (s[0] == "'" and s[-1] == "'")):
+                        s = s[1:-1]
+                    return ('str', s)
+            if isinstance(op, str):
+                return ('name', op)
+            return ('imm', int(op))
+
+        def load_operand(op, reg):
+            t, v = operand_to_imm(op)
+            if t == 'imm':
+                return [f'    mov {reg}, {v}']
+            if t == 'name':
+                idx = mem_map.get(v, 0)
+                return [f'    mov {reg}, [rel mem + {8*idx}]']
+            if t == 'str':
+                lbl = strings[v]
+                return [f'    lea {reg}, [rel {lbl}]']
+            return [f'    mov {reg}, {v}']
 
         for ins in ir:
             op = ins[0]
-
-            # -----------------------------------------------------
-            # FUNÇÃO
-            # -----------------------------------------------------
-            if op == "func_begin":
+            if op == 'func_begin':
                 _, name = ins
-                self.emit(f"{name}:")
-                self.emit("    ; prologue")
-                self.emit("    push rbp")
-                self.emit("    mov rbp, rsp")
+                if name == 'MAIN':
+                    lines.append('main:')
+                    lines.append('    push rbp')
+                    lines.append('    mov rbp, rsp')
+                else:
+                    lines.append(f'{name}:')
+                    lines.append('    push rbp')
+                    lines.append('    mov rbp, rsp')
 
-            elif op == "func_end":
-                _, name = ins
-                self.emit("    ; epilogue")
-                self.emit("    mov rsp, rbp")
-                self.emit("    pop rbp")
-                self.emit("    ret")
+            elif op == 'func_end':
+                lines.append('    mov rsp, rbp')
+                lines.append('    pop rbp')
+                lines.append('    ret')
 
-            # -----------------------------------------------------
-            # LABEL
-            # -----------------------------------------------------
-            elif op == "label":
+            elif op == 'label':
                 _, lbl = ins
-                self.emit(f"{lbl}:")
+                lines.append(f'{lbl}:')
 
-            # -----------------------------------------------------
-            # GOTO
-            # -----------------------------------------------------
-            elif op == "goto":
+            elif op == 'goto':
                 _, lbl = ins
-                self.emit(f"    jmp {lbl}")
+                lines.append(f'    jmp {lbl}')
 
-            # -----------------------------------------------------
-            # IFZ (if zero)
-            # -----------------------------------------------------
-            elif op == "ifz":
+            elif op == 'ifz':
                 _, cond, lbl = ins
-                self.emit("    ; if zero")
-                self.emit(f"    {self.operand(cond)}")
-                self.emit("    pop rax")
-                self.emit(f"    cmp rax, 0")
-                self.emit(f"    je {lbl}")
+                for l in load_operand(cond, 'rax'):
+                    lines.append(l)
+                lines.append('    cmp rax, 0')
+                lines.append(f'    je {lbl}')
 
-            # -----------------------------------------------------
-            # BINOP
-            # -----------------------------------------------------
-            elif op == "binop":
+            elif op == 'binop':
                 _, dst, left, oper, right = ins
+                for l in load_operand(left, 'rax'):
+                    lines.append(l)
+                for l in load_operand(right, 'rbx'):
+                    lines.append(l)
 
-                # aloca temp
-                self.alloc_temp(dst)
+                if oper in ('OP_ADD', '+'):
+                    lines.append('    add rax, rbx')
+                elif oper in ('OP_SUB', '-'):
+                    lines.append('    sub rax, rbx')
+                elif oper in ('OP_MUL', '*'):
+                    lines.append('    imul rax, rbx')
+                elif oper in ('OP_DIV', '/'):
+                    lines.append('    xor rdx, rdx')
+                    lines.append('    idiv rbx')
+                elif oper in ('OP_EQ', '=='):
+                    lines.append('    cmp rax, rbx')
+                    lines.append('    sete al')
+                    lines.append('    movzx rax, al')
+                elif oper in ('OP_NE', '!='):
+                    lines.append('    cmp rax, rbx')
+                    lines.append('    setne al')
+                    lines.append('    movzx rax, al')
+                elif oper in ('OP_LT', '<'):
+                    lines.append('    cmp rax, rbx')
+                    lines.append('    setl al')
+                    lines.append('    movzx rax, al')
+                elif oper in ('OP_GT', '>'):
+                    lines.append('    cmp rax, rbx')
+                    lines.append('    setg al')
+                    lines.append('    movzx rax, al')
+                else:
+                    lines.append('    ; unsupported operator')
 
-                # empilha operandos
-                self.emit(f"    ; {dst} = {left} {oper} {right}")
-                self.emit(f"    {self.operand(left)}")
-                self.emit(f"    {self.operand(right)}")
-                self.emit("    pop rbx")
-                self.emit("    pop rax")
+                idx = mem_map.get(dst)
+                if idx is None:
+                    idx = len(mem_map)
+                    mem_map[dst] = idx
+                lines.append(f'    mov [rel mem + {8*idx}], rax')
 
-                # escolhe instrução
-                if oper == "OP_ADD":
-                    self.emit("    add rax, rbx")
-                elif oper == "OP_SUB":
-                    self.emit("    sub rax, rbx")
-                elif oper == "OP_MUL":
-                    self.emit("    imul rax, rbx")
-                elif oper == "OP_DIV":
-                    self.emit("    xor rdx, rdx")
-                    self.emit("    idiv rbx")
-                elif oper == "OP_EQ":
-                    self.emit("    cmp rax, rbx")
-                    self.emit("    sete al")
-                    self.emit("    movzx rax, al")
-                elif oper == "OP_NE":
-                    self.emit("    cmp rax, rbx")
-                    self.emit("    setne al")
-                    self.emit("    movzx rax, al")
-                elif oper == "OP_LT":
-                    self.emit("    cmp rax, rbx")
-                    self.emit("    setl al")
-                    self.emit("    movzx rax, al")
-                elif oper == "OP_GT":
-                    self.emit("    cmp rax, rbx")
-                    self.emit("    setg al")
-                    self.emit("    movzx rax, al")
-                elif oper == "OP_QMARK":
-                    self.emit("    ; operador ? não implementado (custom)")
-
-                # guarda resultado
-                self.emit(f"    mov [mem+{self.tempmap[dst]}], rax")
-
-            # -----------------------------------------------------
-            # ASSIGN
-            # -----------------------------------------------------
-            elif op == "assign":
+            elif op == 'assign':
                 _, dst, src = ins
+                for l in load_operand(src, 'rax'):
+                    lines.append(l)
+                idx = mem_map.get(dst)
+                if idx is None:
+                    idx = len(mem_map)
+                    mem_map[dst] = idx
+                lines.append(f'    mov [rel mem + {8*idx}], rax')
 
-                # aloca destino se não existir
-                self.alloc(dst)
-
-                self.emit(f"    ; {dst} = {src}")
-                self.emit(f"    {self.operand(src)}")
-                self.emit("    pop rax")
-                self.emit(f"    mov [mem+{self.varmap[dst]}], rax")
-
-            # -----------------------------------------------------
-            # ALLOC
-            # -----------------------------------------------------
-            elif op == "alloc":
+            elif op == 'alloc':
                 _, name = ins
-                self.alloc(name)
-                self.emit(f"    ; alloc {name} @ mem+{self.varmap[name]}")
+                if name not in mem_map:
+                    mem_map[name] = len(mem_map)
 
-            # -----------------------------------------------------
-            # INPUT
-            # -----------------------------------------------------
-            elif op == "read":
+            elif op == 'read':
                 _, name = ins
-                self.alloc(name)
-                self.emit("    ; read")
-                self.emit("    call read_int")
-                self.emit(f"    mov [mem+{self.varmap[name]}], rax")
+                idx = mem_map.get(name)
+                if idx is None:
+                    idx = len(mem_map)
+                    mem_map[name] = idx
+                lines.append('    lea rdi, [rel fmt_read]')
+                lines.append(f'    lea rsi, [rel mem + {8*idx}]')
+                lines.append('    xor rax, rax')
+                lines.append('    call scanf')
 
-            # -----------------------------------------------------
-            # OUTPUT
-            # -----------------------------------------------------
-            elif op == "print":
+            elif op == 'print':
                 _, val = ins
-                self.emit("    ; print")
-                self.emit(f"    {self.operand(val)}")
-                self.emit("    pop rax")
-                self.emit("    call print_int")
+                t, v = operand_to_imm(val)
+                if t == 'str':
+                    lbl = strings[v]
+                    lines.append(f'    lea rdi, [rel {lbl}]')
+                    lines.append('    call puts')
+                else:
+                    for l in load_operand(val, 'rsi'):
+                        lines.append(l.replace('mov rax', 'mov rsi'))
+                    lines.append('    lea rdi, [rel fmt_int]')
+                    lines.append('    xor rax, rax')
+                    lines.append('    call printf')
 
-            # -----------------------------------------------------
-            # RETURN
-            # -----------------------------------------------------
-            elif op == "ret":
+            elif op == 'ret':
                 _, val = ins
-                self.emit("    ; return")
-                self.emit(f"    {self.operand(val)}")
-                self.emit("    pop rax")
+                for l in load_operand(val, 'rax'):
+                    lines.append(l)
+                lines.append('    mov rsp, rbp')
+                lines.append('    pop rbp')
+                lines.append('    ret')
 
-            # -----------------------------------------------------
-            # COMMENT
-            # -----------------------------------------------------
-            elif op == "comment":
+            elif op == 'comment':
                 _, text = ins
-                self.emit(f"    ; {text}")
+                lines.append(f'    ; {text}')
 
             else:
-                self.emit(f"    ; UNKNOWN INSTR {ins}")
+                lines.append(f'    ; UNKNOWN INSTR: {ins}')
 
-        return "\n".join(self.asm)
+        return "\n".join(lines)

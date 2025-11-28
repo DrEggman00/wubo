@@ -1,29 +1,36 @@
-MAIN:
-    ; prologue
+section .data
+fmt_int: db "%ld", 10, 0
+fmt_read: db "%ld", 0
+.Lstr0: db "HELLO WORLD!",0
+.Lstr1: db "WHAT'S YOUR NAME?",0
+.Lstr2: db "HELLO,",0
+
+section .bss
+mem: resq 4
+
+section .text
+global main
+extern printf, scanf, puts
+
+main:
     push rbp
     mov rbp, rsp
-    ; print
-    push ""HELLO WORLD!""
-    pop rax
-    call print_int
-    ; print
-    push ""WHAT'S YOUR NAME?""
-    pop rax
-    call print_int
-    ; read
-    call read_int
-    mov [mem+0], rax
-    ; t0 = ('str', '"HELLO,"') + NAME
-    push ""HELLO,""
-    push [mem+0]
-    pop rbx
-    pop rax
-    mov [mem+1], rax
-    ; print
-    push [mem+1]
-    pop rax
-    call print_int
-    ; epilogue
+    lea rdi, [rel .Lstr0]
+    call puts
+    lea rdi, [rel .Lstr1]
+    call puts
+    lea rdi, [rel fmt_read]
+    lea rsi, [rel mem + 8]
+    xor rax, rax
+    call scanf
+    lea rax, [rel .Lstr2]
+    mov rbx, [rel mem + 8]
+    add rax, rbx
+    mov [rel mem + 24], rax
+    mov rsi, [rel mem + 24]
+    lea rdi, [rel fmt_int]
+    xor rax, rax
+    call printf
     mov rsp, rbp
     pop rbp
     ret
