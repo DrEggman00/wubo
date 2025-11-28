@@ -1,12 +1,19 @@
 Program
   Function: MAIN
     Block
+      Declaration: INT
+        VarDecl: A
+          Number: 3
+      Declaration: INT
+        VarDecl: B
+          Number: 6
+      Declaration: CHAR
+        VarDecl: X
+          Identifier: B
       Output:
-        String: "HELLO WORLD!"
-      Output:
-        String: "WHAT'S YOUR NAME?"
-      Input: NAME
+        Identifier: X
+      Input: A
       Output:
         BinaryOp: +
-          String: "HELLO,"
-          Identifier: NAME
+          Identifier: A
+          Identifier: B

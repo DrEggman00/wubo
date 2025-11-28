@@ -1,7 +1,9 @@
 func MAIN begin
-print "HELLO WORLD!"
-print "WHAT'S YOUR NAME?"
-read NAME
-t0 = "HELLO," + NAME
+A = 3
+B = 6
+X = B
+print X
+read A
+t0 = A + B
 print t0
 func MAIN end

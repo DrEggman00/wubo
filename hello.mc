@@ -1,7 +1,9 @@
 BEGIN
 FUNCTION MAIN:
-    OUTPUT "HELLO WORLD!";
-    OUTPUT "WHAT'S YOUR NAME?";
-    INPUT  NAME;
-    OUTPUT "HELLO," + NAME;
+    INT A = 3;
+    INT B = 6;
+    CHAR X = B;
+    OUTPUT X;
+    INPUT A;
+OUTPUT A+B;
 END
