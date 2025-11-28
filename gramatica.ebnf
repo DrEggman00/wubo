@@ -1,0 +1,45 @@
+programa = "BEGIN" { funcao } "END" ;
+
+funcao = "FUNCTION" ( "MAIN" | ID ) ":" bloco ;
+
+bloco = { comando } ;
+
+comando = declaracao
+        | atribuicao
+        | entrada
+        | saida
+        | while
+        | comentario ;
+
+declaracao = tipo lista_decl ";" ;
+tipo = "INT" | "FLOAT" | "CHAR" ;
+
+lista_decl = ID [ "=" expressao ] { "," ID [ "=" expressao ] } ;
+
+atribuicao = ID "=" expressao ";" ;
+
+entrada = "INPUT" ID ";" ;
+
+saida = "OUTPUT" expressao ";" ;
+
+while = "WHILE" "(" expressao ")" "{" bloco "}" ;
+
+retorno = "RETURN" expressao ";" ;
+
+comentario = "/:" conteudo_comentario ":/" ;
+
+conteudo_comentario = { caractere } ;
+
+expressao = termo { operador termo } ;
+
+termo = ID
+      | NUM
+      | STRING ;
+
+operador = "+" | "-" | "*" | "/" | "==" | "!=" | "<" | ">" | "?" ;
+
+ID = [A-Za-z] [A-Za-z0-9_]* ;
+NUM = "0" | [1-9][0-9]* ;
+STRING = '"' { caractere } '"' ;
+
+caractere = ? qualquer símbolo exceto aspas duplas ou delimitadores inválidos ? ;

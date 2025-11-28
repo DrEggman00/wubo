@@ -1,0 +1,38 @@
+<programa> ::= BEGIN <funcoes> END
+
+<funcoes> ::= <funcao> | <funcao> <funcoes>
+
+<funcao> ::= FUNCTION MAIN ':' <bloco>
+
+<bloco> ::= <comando> | <comando> <bloco>
+
+<comando> ::= <declaracao> 
+           | <atribuicao>
+           | <entrada>
+           | <saida>
+           | <while>
+           | <comentario>
+
+<declaracao> ::= TIPO <lista_id> ';'
+TIPO ::= INT | FLOAT | CHAR
+<lista_id> ::= ID | ID ',' <lista_id>
+
+<atribuicao> ::= ID '=' <expressao> ';'
+
+<entrada> ::= INPUT ID ';'
+
+<saida> ::= OUTPUT <expressao> ';'
+
+<while> ::= WHILE '(' <expressao> ')' '{' <bloco> '}'
+
+<comentario> ::= '/:' <conteudo_comentario> ':/'
+
+<conteudo_comentario> ::= ... (qualquer conteúdo)
+
+<expressao> ::= <termo> | <termo> <operador> <expressao>
+<termo> ::= ID | NUM | STRING
+<operador> ::= '+' | '-' | '*' | '/' | '==' | '!=' | '<' | '>' | '?'
+
+ID ::= [A-Z][A-Z-]*
+NUM ::= 0 | [1-9][0-9]*
+STRING ::= '"' ... '"'

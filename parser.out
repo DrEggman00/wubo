@@ -1,0 +1,118 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    OP_ARROW
+
+Grammar
+
+Rule 0     S' -> programa
+Rule 1     programa -> KW_BEGIN lista_funcoes KW_END
+Rule 2     lista_funcoes -> <empty>
+Rule 3     lista_funcoes -> lista_funcoes funcao
+Rule 4     funcao -> KW_FUNCTION id_ou_main COLON bloco
+Rule 5     id_ou_main -> KW_MAIN
+Rule 6     id_ou_main -> ID
+Rule 7     bloco -> lista_comandos
+Rule 8     lista_comandos -> <empty>
+Rule 9     lista_comandos -> lista_comandos comando
+Rule 10    comando -> declaracao
+Rule 11    comando -> atribuicao
+Rule 12    comando -> entrada
+Rule 13    comando -> saida
+Rule 14    comando -> while_stmt
+Rule 15    comando -> retorno
+Rule 16    comando -> comentario
+Rule 17    declaracao -> tipo lista_decl SEMI
+Rule 18    tipo -> KW_INT
+Rule 19    tipo -> KW_FLOAT
+Rule 20    tipo -> KW_CHAR
+Rule 21    lista_decl -> ID opt_init decl_cont
+Rule 22    decl_cont -> <empty>
+Rule 23    decl_cont -> COMMA lista_decl
+Rule 24    opt_init -> <empty>
+Rule 25    opt_init -> OP_ASSIGN expressao
+Rule 26    atribuicao -> ID OP_ASSIGN expressao SEMI
+Rule 27    entrada -> INPUT ID SEMI
+Rule 28    saida -> OUTPUT expressao SEMI
+Rule 29    while_stmt -> KW_WHILE LPAREN expressao RPAREN LBRACE bloco RBRACE
+Rule 30    retorno -> RETURN expressao SEMI
+Rule 31    comentario -> COMMENT
+Rule 32    expressao -> termo
+Rule 33    expressao -> expressao operador termo
+Rule 34    termo -> ID
+Rule 35    termo -> NUM_INT
+Rule 36    termo -> STRING_DQ
+Rule 37    termo -> STRING_SQ
+Rule 38    operador -> OP_ADD
+Rule 39    operador -> OP_SUB
+Rule 40    operador -> OP_MUL
+Rule 41    operador -> OP_DIV
+Rule 42    operador -> OP_EQ
+Rule 43    operador -> OP_NE
+Rule 44    operador -> OP_LT
+Rule 45    operador -> OP_GT
+Rule 46    operador -> OP_QMARK
+
+Terminals, with rules where they appear
+
+COLON                : 4
+COMMA                : 23
+ID                   : 6 21 26 27 34
+KW_BEGIN             : 1
+KW_CHAR              : 20
+KW_END               : 1
+KW_FLOAT             : 19
+KW_FUNCTION          : 4
+KW_INT               : 18
+KW_MAIN              : 5
+KW_WHILE             : 29
+LBRACE               : 29
+LPAREN               : 29
+NUM_INT              : 35
+OP_ADD               : 38
+OP_ARROW             : 
+OP_ASSIGN            : 25 26
+OP_DIV               : 41
+OP_EQ                : 42
+OP_GT                : 45
+OP_LT                : 44
+OP_MUL               : 40
+OP_NE                : 43
+OP_QMARK             : 46
+OP_SUB               : 39
+RBRACE               : 29
+RPAREN               : 29
+SEMI                 : 17 26 27 28 30
+STRING_DQ            : 36
+STRING_SQ            : 37
+error                : 
+
+Nonterminals, with rules where they appear
+
+COMMENT              : 31
+INPUT                : 27
+OUTPUT               : 28
+RETURN               : 30
+atribuicao           : 11
+bloco                : 4 29
+comando              : 9
+comentario           : 16
+decl_cont            : 21
+declaracao           : 10
+entrada              : 12
+expressao            : 25 26 28 29 30 33
+funcao               : 3
+id_ou_main           : 4
+lista_comandos       : 7 9
+lista_decl           : 17 23
+lista_funcoes        : 1 3
+operador             : 33
+opt_init             : 21
+programa             : 0
+retorno              : 15
+saida                : 13
+termo                : 32 33
+tipo                 : 17
+while_stmt           : 14
+
