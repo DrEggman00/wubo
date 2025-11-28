@@ -78,7 +78,7 @@ class CodeGen:
                     if len(s) >= 2 and ((s[0] == '"' and s[-1] == '"') or (s[0] == "'" and s[-1] == "'")):
                         s = s[1:-1]
                     if s not in strings:
-                        strings[s] = f'.Lstr{str_count}'
+                        strings[s] = f'Lstr{str_count}'
                         str_count += 1
 
         all_mem = mem_names + temps
