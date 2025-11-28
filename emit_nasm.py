@@ -165,30 +165,30 @@ def gen_nasm(instrs, out_path):
                 for line in load_operand(right, 'rbx'):
                     f.write(line + '\n')
 
-                if oper == 'OP_ADD':
+                if oper in ('OP_ADD', '+'):
                     f.write('    add rax, rbx\n')
-                elif oper == 'OP_SUB':
+                elif oper in ('OP_SUB', '-'):
                     f.write('    sub rax, rbx\n')
-                elif oper == 'OP_MUL':
+                elif oper in ('OP_MUL', '*'):
                     f.write('    imul rax, rbx\n')
-                elif oper == 'OP_DIV':
+                elif oper in ('OP_DIV', '/'):
                     f.write('    xor rdx, rdx\n')
                     f.write('    mov rsi, rbx\n')
                     f.write('    mov rbx, rsi\n')
                     f.write('    idiv rbx\n')
-                elif oper == 'OP_EQ':
+                elif oper in ('OP_EQ', '=='):
                     f.write('    cmp rax, rbx\n')
                     f.write('    sete al\n')
                     f.write('    movzx rax, al\n')
-                elif oper == 'OP_NE':
+                elif oper in ('OP_NE', '!='):
                     f.write('    cmp rax, rbx\n')
                     f.write('    setne al\n')
                     f.write('    movzx rax, al\n')
-                elif oper == 'OP_LT':
+                elif oper in ('OP_LT', '<'):
                     f.write('    cmp rax, rbx\n')
                     f.write('    setl al\n')
                     f.write('    movzx rax, al\n')
-                elif oper == 'OP_GT':
+                elif oper in ('OP_GT', '>'):
                     f.write('    cmp rax, rbx\n')
                     f.write('    setg al\n')
                     f.write('    movzx rax, al\n')

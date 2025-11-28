@@ -25,7 +25,7 @@ main:
     call scanf
     lea rax, [rel .Lstr2]
     mov rbx, [rel mem + 8]
-    ; unsupported operator
+    add rax, rbx
     mov [rel mem + 24], rax
     mov rsi, [rel mem + 24]
     lea rdi, [rel fmt_int]
