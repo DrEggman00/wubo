@@ -58,7 +58,9 @@ Terminals, with rules where they appear
 
 COLON                : 4
 COMMA                : 23
+COMMENT              : 31
 ID                   : 6 21 26 27 34
+INPUT                : 27
 KW_BEGIN             : 1
 KW_CHAR              : 20
 KW_END               : 1
@@ -81,7 +83,9 @@ OP_MUL               : 40
 OP_NE                : 43
 OP_QMARK             : 46
 OP_SUB               : 39
+OUTPUT               : 28
 RBRACE               : 29
+RETURN               : 30
 RPAREN               : 29
 SEMI                 : 17 26 27 28 30
 STRING_DQ            : 36
@@ -90,10 +94,6 @@ error                :
 
 Nonterminals, with rules where they appear
 
-COMMENT              : 31
-INPUT                : 27
-OUTPUT               : 28
-RETURN               : 30
 atribuicao           : 11
 bloco                : 4 29
 comando              : 9
@@ -115,4 +115,1019 @@ saida                : 13
 termo                : 32 33
 tipo                 : 17
 while_stmt           : 14
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . programa
+    (1) programa -> . KW_BEGIN lista_funcoes KW_END
+
+    KW_BEGIN        shift and go to state 2
+
+    programa                       shift and go to state 1
+
+state 1
+
+    (0) S' -> programa .
+
+
+
+state 2
+
+    (1) programa -> KW_BEGIN . lista_funcoes KW_END
+    (2) lista_funcoes -> .
+    (3) lista_funcoes -> . lista_funcoes funcao
+
+    KW_END          reduce using rule 2 (lista_funcoes -> .)
+    KW_FUNCTION     reduce using rule 2 (lista_funcoes -> .)
+
+    lista_funcoes                  shift and go to state 3
+
+state 3
+
+    (1) programa -> KW_BEGIN lista_funcoes . KW_END
+    (3) lista_funcoes -> lista_funcoes . funcao
+    (4) funcao -> . KW_FUNCTION id_ou_main COLON bloco
+
+    KW_END          shift and go to state 4
+    KW_FUNCTION     shift and go to state 6
+
+    funcao                         shift and go to state 5
+
+state 4
+
+    (1) programa -> KW_BEGIN lista_funcoes KW_END .
+
+    $end            reduce using rule 1 (programa -> KW_BEGIN lista_funcoes KW_END .)
+
+
+state 5
+
+    (3) lista_funcoes -> lista_funcoes funcao .
+
+    KW_END          reduce using rule 3 (lista_funcoes -> lista_funcoes funcao .)
+    KW_FUNCTION     reduce using rule 3 (lista_funcoes -> lista_funcoes funcao .)
+
+
+state 6
+
+    (4) funcao -> KW_FUNCTION . id_ou_main COLON bloco
+    (5) id_ou_main -> . KW_MAIN
+    (6) id_ou_main -> . ID
+
+    KW_MAIN         shift and go to state 8
+    ID              shift and go to state 9
+
+    id_ou_main                     shift and go to state 7
+
+state 7
+
+    (4) funcao -> KW_FUNCTION id_ou_main . COLON bloco
+
+    COLON           shift and go to state 10
+
+
+state 8
+
+    (5) id_ou_main -> KW_MAIN .
+
+    COLON           reduce using rule 5 (id_ou_main -> KW_MAIN .)
+
+
+state 9
+
+    (6) id_ou_main -> ID .
+
+    COLON           reduce using rule 6 (id_ou_main -> ID .)
+
+
+state 10
+
+    (4) funcao -> KW_FUNCTION id_ou_main COLON . bloco
+    (7) bloco -> . lista_comandos
+    (8) lista_comandos -> .
+    (9) lista_comandos -> . lista_comandos comando
+
+    ID              reduce using rule 8 (lista_comandos -> .)
+    INPUT           reduce using rule 8 (lista_comandos -> .)
+    OUTPUT          reduce using rule 8 (lista_comandos -> .)
+    KW_WHILE        reduce using rule 8 (lista_comandos -> .)
+    RETURN          reduce using rule 8 (lista_comandos -> .)
+    COMMENT         reduce using rule 8 (lista_comandos -> .)
+    KW_INT          reduce using rule 8 (lista_comandos -> .)
+    KW_FLOAT        reduce using rule 8 (lista_comandos -> .)
+    KW_CHAR         reduce using rule 8 (lista_comandos -> .)
+    KW_END          reduce using rule 8 (lista_comandos -> .)
+    KW_FUNCTION     reduce using rule 8 (lista_comandos -> .)
+
+    bloco                          shift and go to state 11
+    lista_comandos                 shift and go to state 12
+
+state 11
+
+    (4) funcao -> KW_FUNCTION id_ou_main COLON bloco .
+
+    KW_END          reduce using rule 4 (funcao -> KW_FUNCTION id_ou_main COLON bloco .)
+    KW_FUNCTION     reduce using rule 4 (funcao -> KW_FUNCTION id_ou_main COLON bloco .)
+
+
+state 12
+
+    (7) bloco -> lista_comandos .
+    (9) lista_comandos -> lista_comandos . comando
+    (10) comando -> . declaracao
+    (11) comando -> . atribuicao
+    (12) comando -> . entrada
+    (13) comando -> . saida
+    (14) comando -> . while_stmt
+    (15) comando -> . retorno
+    (16) comando -> . comentario
+    (17) declaracao -> . tipo lista_decl SEMI
+    (26) atribuicao -> . ID OP_ASSIGN expressao SEMI
+    (27) entrada -> . INPUT ID SEMI
+    (28) saida -> . OUTPUT expressao SEMI
+    (29) while_stmt -> . KW_WHILE LPAREN expressao RPAREN LBRACE bloco RBRACE
+    (30) retorno -> . RETURN expressao SEMI
+    (31) comentario -> . COMMENT
+    (18) tipo -> . KW_INT
+    (19) tipo -> . KW_FLOAT
+    (20) tipo -> . KW_CHAR
+
+    KW_END          reduce using rule 7 (bloco -> lista_comandos .)
+    KW_FUNCTION     reduce using rule 7 (bloco -> lista_comandos .)
+    RBRACE          reduce using rule 7 (bloco -> lista_comandos .)
+    ID              shift and go to state 22
+    INPUT           shift and go to state 23
+    OUTPUT          shift and go to state 24
+    KW_WHILE        shift and go to state 25
+    RETURN          shift and go to state 26
+    COMMENT         shift and go to state 27
+    KW_INT          shift and go to state 28
+    KW_FLOAT        shift and go to state 29
+    KW_CHAR         shift and go to state 30
+
+    comando                        shift and go to state 13
+    declaracao                     shift and go to state 14
+    atribuicao                     shift and go to state 15
+    entrada                        shift and go to state 16
+    saida                          shift and go to state 17
+    while_stmt                     shift and go to state 18
+    retorno                        shift and go to state 19
+    comentario                     shift and go to state 20
+    tipo                           shift and go to state 21
+
+state 13
+
+    (9) lista_comandos -> lista_comandos comando .
+
+    ID              reduce using rule 9 (lista_comandos -> lista_comandos comando .)
+    INPUT           reduce using rule 9 (lista_comandos -> lista_comandos comando .)
+    OUTPUT          reduce using rule 9 (lista_comandos -> lista_comandos comando .)
+    KW_WHILE        reduce using rule 9 (lista_comandos -> lista_comandos comando .)
+    RETURN          reduce using rule 9 (lista_comandos -> lista_comandos comando .)
+    COMMENT         reduce using rule 9 (lista_comandos -> lista_comandos comando .)
+    KW_INT          reduce using rule 9 (lista_comandos -> lista_comandos comando .)
+    KW_FLOAT        reduce using rule 9 (lista_comandos -> lista_comandos comando .)
+    KW_CHAR         reduce using rule 9 (lista_comandos -> lista_comandos comando .)
+    KW_END          reduce using rule 9 (lista_comandos -> lista_comandos comando .)
+    KW_FUNCTION     reduce using rule 9 (lista_comandos -> lista_comandos comando .)
+    RBRACE          reduce using rule 9 (lista_comandos -> lista_comandos comando .)
+
+
+state 14
+
+    (10) comando -> declaracao .
+
+    ID              reduce using rule 10 (comando -> declaracao .)
+    INPUT           reduce using rule 10 (comando -> declaracao .)
+    OUTPUT          reduce using rule 10 (comando -> declaracao .)
+    KW_WHILE        reduce using rule 10 (comando -> declaracao .)
+    RETURN          reduce using rule 10 (comando -> declaracao .)
+    COMMENT         reduce using rule 10 (comando -> declaracao .)
+    KW_INT          reduce using rule 10 (comando -> declaracao .)
+    KW_FLOAT        reduce using rule 10 (comando -> declaracao .)
+    KW_CHAR         reduce using rule 10 (comando -> declaracao .)
+    KW_END          reduce using rule 10 (comando -> declaracao .)
+    KW_FUNCTION     reduce using rule 10 (comando -> declaracao .)
+    RBRACE          reduce using rule 10 (comando -> declaracao .)
+
+
+state 15
+
+    (11) comando -> atribuicao .
+
+    ID              reduce using rule 11 (comando -> atribuicao .)
+    INPUT           reduce using rule 11 (comando -> atribuicao .)
+    OUTPUT          reduce using rule 11 (comando -> atribuicao .)
+    KW_WHILE        reduce using rule 11 (comando -> atribuicao .)
+    RETURN          reduce using rule 11 (comando -> atribuicao .)
+    COMMENT         reduce using rule 11 (comando -> atribuicao .)
+    KW_INT          reduce using rule 11 (comando -> atribuicao .)
+    KW_FLOAT        reduce using rule 11 (comando -> atribuicao .)
+    KW_CHAR         reduce using rule 11 (comando -> atribuicao .)
+    KW_END          reduce using rule 11 (comando -> atribuicao .)
+    KW_FUNCTION     reduce using rule 11 (comando -> atribuicao .)
+    RBRACE          reduce using rule 11 (comando -> atribuicao .)
+
+
+state 16
+
+    (12) comando -> entrada .
+
+    ID              reduce using rule 12 (comando -> entrada .)
+    INPUT           reduce using rule 12 (comando -> entrada .)
+    OUTPUT          reduce using rule 12 (comando -> entrada .)
+    KW_WHILE        reduce using rule 12 (comando -> entrada .)
+    RETURN          reduce using rule 12 (comando -> entrada .)
+    COMMENT         reduce using rule 12 (comando -> entrada .)
+    KW_INT          reduce using rule 12 (comando -> entrada .)
+    KW_FLOAT        reduce using rule 12 (comando -> entrada .)
+    KW_CHAR         reduce using rule 12 (comando -> entrada .)
+    KW_END          reduce using rule 12 (comando -> entrada .)
+    KW_FUNCTION     reduce using rule 12 (comando -> entrada .)
+    RBRACE          reduce using rule 12 (comando -> entrada .)
+
+
+state 17
+
+    (13) comando -> saida .
+
+    ID              reduce using rule 13 (comando -> saida .)
+    INPUT           reduce using rule 13 (comando -> saida .)
+    OUTPUT          reduce using rule 13 (comando -> saida .)
+    KW_WHILE        reduce using rule 13 (comando -> saida .)
+    RETURN          reduce using rule 13 (comando -> saida .)
+    COMMENT         reduce using rule 13 (comando -> saida .)
+    KW_INT          reduce using rule 13 (comando -> saida .)
+    KW_FLOAT        reduce using rule 13 (comando -> saida .)
+    KW_CHAR         reduce using rule 13 (comando -> saida .)
+    KW_END          reduce using rule 13 (comando -> saida .)
+    KW_FUNCTION     reduce using rule 13 (comando -> saida .)
+    RBRACE          reduce using rule 13 (comando -> saida .)
+
+
+state 18
+
+    (14) comando -> while_stmt .
+
+    ID              reduce using rule 14 (comando -> while_stmt .)
+    INPUT           reduce using rule 14 (comando -> while_stmt .)
+    OUTPUT          reduce using rule 14 (comando -> while_stmt .)
+    KW_WHILE        reduce using rule 14 (comando -> while_stmt .)
+    RETURN          reduce using rule 14 (comando -> while_stmt .)
+    COMMENT         reduce using rule 14 (comando -> while_stmt .)
+    KW_INT          reduce using rule 14 (comando -> while_stmt .)
+    KW_FLOAT        reduce using rule 14 (comando -> while_stmt .)
+    KW_CHAR         reduce using rule 14 (comando -> while_stmt .)
+    KW_END          reduce using rule 14 (comando -> while_stmt .)
+    KW_FUNCTION     reduce using rule 14 (comando -> while_stmt .)
+    RBRACE          reduce using rule 14 (comando -> while_stmt .)
+
+
+state 19
+
+    (15) comando -> retorno .
+
+    ID              reduce using rule 15 (comando -> retorno .)
+    INPUT           reduce using rule 15 (comando -> retorno .)
+    OUTPUT          reduce using rule 15 (comando -> retorno .)
+    KW_WHILE        reduce using rule 15 (comando -> retorno .)
+    RETURN          reduce using rule 15 (comando -> retorno .)
+    COMMENT         reduce using rule 15 (comando -> retorno .)
+    KW_INT          reduce using rule 15 (comando -> retorno .)
+    KW_FLOAT        reduce using rule 15 (comando -> retorno .)
+    KW_CHAR         reduce using rule 15 (comando -> retorno .)
+    KW_END          reduce using rule 15 (comando -> retorno .)
+    KW_FUNCTION     reduce using rule 15 (comando -> retorno .)
+    RBRACE          reduce using rule 15 (comando -> retorno .)
+
+
+state 20
+
+    (16) comando -> comentario .
+
+    ID              reduce using rule 16 (comando -> comentario .)
+    INPUT           reduce using rule 16 (comando -> comentario .)
+    OUTPUT          reduce using rule 16 (comando -> comentario .)
+    KW_WHILE        reduce using rule 16 (comando -> comentario .)
+    RETURN          reduce using rule 16 (comando -> comentario .)
+    COMMENT         reduce using rule 16 (comando -> comentario .)
+    KW_INT          reduce using rule 16 (comando -> comentario .)
+    KW_FLOAT        reduce using rule 16 (comando -> comentario .)
+    KW_CHAR         reduce using rule 16 (comando -> comentario .)
+    KW_END          reduce using rule 16 (comando -> comentario .)
+    KW_FUNCTION     reduce using rule 16 (comando -> comentario .)
+    RBRACE          reduce using rule 16 (comando -> comentario .)
+
+
+state 21
+
+    (17) declaracao -> tipo . lista_decl SEMI
+    (21) lista_decl -> . ID opt_init decl_cont
+
+    ID              shift and go to state 32
+
+    lista_decl                     shift and go to state 31
+
+state 22
+
+    (26) atribuicao -> ID . OP_ASSIGN expressao SEMI
+
+    OP_ASSIGN       shift and go to state 33
+
+
+state 23
+
+    (27) entrada -> INPUT . ID SEMI
+
+    ID              shift and go to state 34
+
+
+state 24
+
+    (28) saida -> OUTPUT . expressao SEMI
+    (32) expressao -> . termo
+    (33) expressao -> . expressao operador termo
+    (34) termo -> . ID
+    (35) termo -> . NUM_INT
+    (36) termo -> . STRING_DQ
+    (37) termo -> . STRING_SQ
+
+    ID              shift and go to state 37
+    NUM_INT         shift and go to state 38
+    STRING_DQ       shift and go to state 39
+    STRING_SQ       shift and go to state 40
+
+    expressao                      shift and go to state 35
+    termo                          shift and go to state 36
+
+state 25
+
+    (29) while_stmt -> KW_WHILE . LPAREN expressao RPAREN LBRACE bloco RBRACE
+
+    LPAREN          shift and go to state 41
+
+
+state 26
+
+    (30) retorno -> RETURN . expressao SEMI
+    (32) expressao -> . termo
+    (33) expressao -> . expressao operador termo
+    (34) termo -> . ID
+    (35) termo -> . NUM_INT
+    (36) termo -> . STRING_DQ
+    (37) termo -> . STRING_SQ
+
+    ID              shift and go to state 37
+    NUM_INT         shift and go to state 38
+    STRING_DQ       shift and go to state 39
+    STRING_SQ       shift and go to state 40
+
+    expressao                      shift and go to state 42
+    termo                          shift and go to state 36
+
+state 27
+
+    (31) comentario -> COMMENT .
+
+    ID              reduce using rule 31 (comentario -> COMMENT .)
+    INPUT           reduce using rule 31 (comentario -> COMMENT .)
+    OUTPUT          reduce using rule 31 (comentario -> COMMENT .)
+    KW_WHILE        reduce using rule 31 (comentario -> COMMENT .)
+    RETURN          reduce using rule 31 (comentario -> COMMENT .)
+    COMMENT         reduce using rule 31 (comentario -> COMMENT .)
+    KW_INT          reduce using rule 31 (comentario -> COMMENT .)
+    KW_FLOAT        reduce using rule 31 (comentario -> COMMENT .)
+    KW_CHAR         reduce using rule 31 (comentario -> COMMENT .)
+    KW_END          reduce using rule 31 (comentario -> COMMENT .)
+    KW_FUNCTION     reduce using rule 31 (comentario -> COMMENT .)
+    RBRACE          reduce using rule 31 (comentario -> COMMENT .)
+
+
+state 28
+
+    (18) tipo -> KW_INT .
+
+    ID              reduce using rule 18 (tipo -> KW_INT .)
+
+
+state 29
+
+    (19) tipo -> KW_FLOAT .
+
+    ID              reduce using rule 19 (tipo -> KW_FLOAT .)
+
+
+state 30
+
+    (20) tipo -> KW_CHAR .
+
+    ID              reduce using rule 20 (tipo -> KW_CHAR .)
+
+
+state 31
+
+    (17) declaracao -> tipo lista_decl . SEMI
+
+    SEMI            shift and go to state 43
+
+
+state 32
+
+    (21) lista_decl -> ID . opt_init decl_cont
+    (24) opt_init -> .
+    (25) opt_init -> . OP_ASSIGN expressao
+
+    COMMA           reduce using rule 24 (opt_init -> .)
+    SEMI            reduce using rule 24 (opt_init -> .)
+    OP_ASSIGN       shift and go to state 45
+
+    opt_init                       shift and go to state 44
+
+state 33
+
+    (26) atribuicao -> ID OP_ASSIGN . expressao SEMI
+    (32) expressao -> . termo
+    (33) expressao -> . expressao operador termo
+    (34) termo -> . ID
+    (35) termo -> . NUM_INT
+    (36) termo -> . STRING_DQ
+    (37) termo -> . STRING_SQ
+
+    ID              shift and go to state 37
+    NUM_INT         shift and go to state 38
+    STRING_DQ       shift and go to state 39
+    STRING_SQ       shift and go to state 40
+
+    expressao                      shift and go to state 46
+    termo                          shift and go to state 36
+
+state 34
+
+    (27) entrada -> INPUT ID . SEMI
+
+    SEMI            shift and go to state 47
+
+
+state 35
+
+    (28) saida -> OUTPUT expressao . SEMI
+    (33) expressao -> expressao . operador termo
+    (38) operador -> . OP_ADD
+    (39) operador -> . OP_SUB
+    (40) operador -> . OP_MUL
+    (41) operador -> . OP_DIV
+    (42) operador -> . OP_EQ
+    (43) operador -> . OP_NE
+    (44) operador -> . OP_LT
+    (45) operador -> . OP_GT
+    (46) operador -> . OP_QMARK
+
+    SEMI            shift and go to state 48
+    OP_ADD          shift and go to state 50
+    OP_SUB          shift and go to state 51
+    OP_MUL          shift and go to state 52
+    OP_DIV          shift and go to state 53
+    OP_EQ           shift and go to state 54
+    OP_NE           shift and go to state 55
+    OP_LT           shift and go to state 56
+    OP_GT           shift and go to state 57
+    OP_QMARK        shift and go to state 58
+
+    operador                       shift and go to state 49
+
+state 36
+
+    (32) expressao -> termo .
+
+    SEMI            reduce using rule 32 (expressao -> termo .)
+    OP_ADD          reduce using rule 32 (expressao -> termo .)
+    OP_SUB          reduce using rule 32 (expressao -> termo .)
+    OP_MUL          reduce using rule 32 (expressao -> termo .)
+    OP_DIV          reduce using rule 32 (expressao -> termo .)
+    OP_EQ           reduce using rule 32 (expressao -> termo .)
+    OP_NE           reduce using rule 32 (expressao -> termo .)
+    OP_LT           reduce using rule 32 (expressao -> termo .)
+    OP_GT           reduce using rule 32 (expressao -> termo .)
+    OP_QMARK        reduce using rule 32 (expressao -> termo .)
+    RPAREN          reduce using rule 32 (expressao -> termo .)
+    COMMA           reduce using rule 32 (expressao -> termo .)
+
+
+state 37
+
+    (34) termo -> ID .
+
+    SEMI            reduce using rule 34 (termo -> ID .)
+    OP_ADD          reduce using rule 34 (termo -> ID .)
+    OP_SUB          reduce using rule 34 (termo -> ID .)
+    OP_MUL          reduce using rule 34 (termo -> ID .)
+    OP_DIV          reduce using rule 34 (termo -> ID .)
+    OP_EQ           reduce using rule 34 (termo -> ID .)
+    OP_NE           reduce using rule 34 (termo -> ID .)
+    OP_LT           reduce using rule 34 (termo -> ID .)
+    OP_GT           reduce using rule 34 (termo -> ID .)
+    OP_QMARK        reduce using rule 34 (termo -> ID .)
+    RPAREN          reduce using rule 34 (termo -> ID .)
+    COMMA           reduce using rule 34 (termo -> ID .)
+
+
+state 38
+
+    (35) termo -> NUM_INT .
+
+    SEMI            reduce using rule 35 (termo -> NUM_INT .)
+    OP_ADD          reduce using rule 35 (termo -> NUM_INT .)
+    OP_SUB          reduce using rule 35 (termo -> NUM_INT .)
+    OP_MUL          reduce using rule 35 (termo -> NUM_INT .)
+    OP_DIV          reduce using rule 35 (termo -> NUM_INT .)
+    OP_EQ           reduce using rule 35 (termo -> NUM_INT .)
+    OP_NE           reduce using rule 35 (termo -> NUM_INT .)
+    OP_LT           reduce using rule 35 (termo -> NUM_INT .)
+    OP_GT           reduce using rule 35 (termo -> NUM_INT .)
+    OP_QMARK        reduce using rule 35 (termo -> NUM_INT .)
+    RPAREN          reduce using rule 35 (termo -> NUM_INT .)
+    COMMA           reduce using rule 35 (termo -> NUM_INT .)
+
+
+state 39
+
+    (36) termo -> STRING_DQ .
+
+    SEMI            reduce using rule 36 (termo -> STRING_DQ .)
+    OP_ADD          reduce using rule 36 (termo -> STRING_DQ .)
+    OP_SUB          reduce using rule 36 (termo -> STRING_DQ .)
+    OP_MUL          reduce using rule 36 (termo -> STRING_DQ .)
+    OP_DIV          reduce using rule 36 (termo -> STRING_DQ .)
+    OP_EQ           reduce using rule 36 (termo -> STRING_DQ .)
+    OP_NE           reduce using rule 36 (termo -> STRING_DQ .)
+    OP_LT           reduce using rule 36 (termo -> STRING_DQ .)
+    OP_GT           reduce using rule 36 (termo -> STRING_DQ .)
+    OP_QMARK        reduce using rule 36 (termo -> STRING_DQ .)
+    RPAREN          reduce using rule 36 (termo -> STRING_DQ .)
+    COMMA           reduce using rule 36 (termo -> STRING_DQ .)
+
+
+state 40
+
+    (37) termo -> STRING_SQ .
+
+    SEMI            reduce using rule 37 (termo -> STRING_SQ .)
+    OP_ADD          reduce using rule 37 (termo -> STRING_SQ .)
+    OP_SUB          reduce using rule 37 (termo -> STRING_SQ .)
+    OP_MUL          reduce using rule 37 (termo -> STRING_SQ .)
+    OP_DIV          reduce using rule 37 (termo -> STRING_SQ .)
+    OP_EQ           reduce using rule 37 (termo -> STRING_SQ .)
+    OP_NE           reduce using rule 37 (termo -> STRING_SQ .)
+    OP_LT           reduce using rule 37 (termo -> STRING_SQ .)
+    OP_GT           reduce using rule 37 (termo -> STRING_SQ .)
+    OP_QMARK        reduce using rule 37 (termo -> STRING_SQ .)
+    RPAREN          reduce using rule 37 (termo -> STRING_SQ .)
+    COMMA           reduce using rule 37 (termo -> STRING_SQ .)
+
+
+state 41
+
+    (29) while_stmt -> KW_WHILE LPAREN . expressao RPAREN LBRACE bloco RBRACE
+    (32) expressao -> . termo
+    (33) expressao -> . expressao operador termo
+    (34) termo -> . ID
+    (35) termo -> . NUM_INT
+    (36) termo -> . STRING_DQ
+    (37) termo -> . STRING_SQ
+
+    ID              shift and go to state 37
+    NUM_INT         shift and go to state 38
+    STRING_DQ       shift and go to state 39
+    STRING_SQ       shift and go to state 40
+
+    expressao                      shift and go to state 59
+    termo                          shift and go to state 36
+
+state 42
+
+    (30) retorno -> RETURN expressao . SEMI
+    (33) expressao -> expressao . operador termo
+    (38) operador -> . OP_ADD
+    (39) operador -> . OP_SUB
+    (40) operador -> . OP_MUL
+    (41) operador -> . OP_DIV
+    (42) operador -> . OP_EQ
+    (43) operador -> . OP_NE
+    (44) operador -> . OP_LT
+    (45) operador -> . OP_GT
+    (46) operador -> . OP_QMARK
+
+    SEMI            shift and go to state 60
+    OP_ADD          shift and go to state 50
+    OP_SUB          shift and go to state 51
+    OP_MUL          shift and go to state 52
+    OP_DIV          shift and go to state 53
+    OP_EQ           shift and go to state 54
+    OP_NE           shift and go to state 55
+    OP_LT           shift and go to state 56
+    OP_GT           shift and go to state 57
+    OP_QMARK        shift and go to state 58
+
+    operador                       shift and go to state 49
+
+state 43
+
+    (17) declaracao -> tipo lista_decl SEMI .
+
+    ID              reduce using rule 17 (declaracao -> tipo lista_decl SEMI .)
+    INPUT           reduce using rule 17 (declaracao -> tipo lista_decl SEMI .)
+    OUTPUT          reduce using rule 17 (declaracao -> tipo lista_decl SEMI .)
+    KW_WHILE        reduce using rule 17 (declaracao -> tipo lista_decl SEMI .)
+    RETURN          reduce using rule 17 (declaracao -> tipo lista_decl SEMI .)
+    COMMENT         reduce using rule 17 (declaracao -> tipo lista_decl SEMI .)
+    KW_INT          reduce using rule 17 (declaracao -> tipo lista_decl SEMI .)
+    KW_FLOAT        reduce using rule 17 (declaracao -> tipo lista_decl SEMI .)
+    KW_CHAR         reduce using rule 17 (declaracao -> tipo lista_decl SEMI .)
+    KW_END          reduce using rule 17 (declaracao -> tipo lista_decl SEMI .)
+    KW_FUNCTION     reduce using rule 17 (declaracao -> tipo lista_decl SEMI .)
+    RBRACE          reduce using rule 17 (declaracao -> tipo lista_decl SEMI .)
+
+
+state 44
+
+    (21) lista_decl -> ID opt_init . decl_cont
+    (22) decl_cont -> .
+    (23) decl_cont -> . COMMA lista_decl
+
+    SEMI            reduce using rule 22 (decl_cont -> .)
+    COMMA           shift and go to state 62
+
+    decl_cont                      shift and go to state 61
+
+state 45
+
+    (25) opt_init -> OP_ASSIGN . expressao
+    (32) expressao -> . termo
+    (33) expressao -> . expressao operador termo
+    (34) termo -> . ID
+    (35) termo -> . NUM_INT
+    (36) termo -> . STRING_DQ
+    (37) termo -> . STRING_SQ
+
+    ID              shift and go to state 37
+    NUM_INT         shift and go to state 38
+    STRING_DQ       shift and go to state 39
+    STRING_SQ       shift and go to state 40
+
+    expressao                      shift and go to state 63
+    termo                          shift and go to state 36
+
+state 46
+
+    (26) atribuicao -> ID OP_ASSIGN expressao . SEMI
+    (33) expressao -> expressao . operador termo
+    (38) operador -> . OP_ADD
+    (39) operador -> . OP_SUB
+    (40) operador -> . OP_MUL
+    (41) operador -> . OP_DIV
+    (42) operador -> . OP_EQ
+    (43) operador -> . OP_NE
+    (44) operador -> . OP_LT
+    (45) operador -> . OP_GT
+    (46) operador -> . OP_QMARK
+
+    SEMI            shift and go to state 64
+    OP_ADD          shift and go to state 50
+    OP_SUB          shift and go to state 51
+    OP_MUL          shift and go to state 52
+    OP_DIV          shift and go to state 53
+    OP_EQ           shift and go to state 54
+    OP_NE           shift and go to state 55
+    OP_LT           shift and go to state 56
+    OP_GT           shift and go to state 57
+    OP_QMARK        shift and go to state 58
+
+    operador                       shift and go to state 49
+
+state 47
+
+    (27) entrada -> INPUT ID SEMI .
+
+    ID              reduce using rule 27 (entrada -> INPUT ID SEMI .)
+    INPUT           reduce using rule 27 (entrada -> INPUT ID SEMI .)
+    OUTPUT          reduce using rule 27 (entrada -> INPUT ID SEMI .)
+    KW_WHILE        reduce using rule 27 (entrada -> INPUT ID SEMI .)
+    RETURN          reduce using rule 27 (entrada -> INPUT ID SEMI .)
+    COMMENT         reduce using rule 27 (entrada -> INPUT ID SEMI .)
+    KW_INT          reduce using rule 27 (entrada -> INPUT ID SEMI .)
+    KW_FLOAT        reduce using rule 27 (entrada -> INPUT ID SEMI .)
+    KW_CHAR         reduce using rule 27 (entrada -> INPUT ID SEMI .)
+    KW_END          reduce using rule 27 (entrada -> INPUT ID SEMI .)
+    KW_FUNCTION     reduce using rule 27 (entrada -> INPUT ID SEMI .)
+    RBRACE          reduce using rule 27 (entrada -> INPUT ID SEMI .)
+
+
+state 48
+
+    (28) saida -> OUTPUT expressao SEMI .
+
+    ID              reduce using rule 28 (saida -> OUTPUT expressao SEMI .)
+    INPUT           reduce using rule 28 (saida -> OUTPUT expressao SEMI .)
+    OUTPUT          reduce using rule 28 (saida -> OUTPUT expressao SEMI .)
+    KW_WHILE        reduce using rule 28 (saida -> OUTPUT expressao SEMI .)
+    RETURN          reduce using rule 28 (saida -> OUTPUT expressao SEMI .)
+    COMMENT         reduce using rule 28 (saida -> OUTPUT expressao SEMI .)
+    KW_INT          reduce using rule 28 (saida -> OUTPUT expressao SEMI .)
+    KW_FLOAT        reduce using rule 28 (saida -> OUTPUT expressao SEMI .)
+    KW_CHAR         reduce using rule 28 (saida -> OUTPUT expressao SEMI .)
+    KW_END          reduce using rule 28 (saida -> OUTPUT expressao SEMI .)
+    KW_FUNCTION     reduce using rule 28 (saida -> OUTPUT expressao SEMI .)
+    RBRACE          reduce using rule 28 (saida -> OUTPUT expressao SEMI .)
+
+
+state 49
+
+    (33) expressao -> expressao operador . termo
+    (34) termo -> . ID
+    (35) termo -> . NUM_INT
+    (36) termo -> . STRING_DQ
+    (37) termo -> . STRING_SQ
+
+    ID              shift and go to state 37
+    NUM_INT         shift and go to state 38
+    STRING_DQ       shift and go to state 39
+    STRING_SQ       shift and go to state 40
+
+    termo                          shift and go to state 65
+
+state 50
+
+    (38) operador -> OP_ADD .
+
+    ID              reduce using rule 38 (operador -> OP_ADD .)
+    NUM_INT         reduce using rule 38 (operador -> OP_ADD .)
+    STRING_DQ       reduce using rule 38 (operador -> OP_ADD .)
+    STRING_SQ       reduce using rule 38 (operador -> OP_ADD .)
+
+
+state 51
+
+    (39) operador -> OP_SUB .
+
+    ID              reduce using rule 39 (operador -> OP_SUB .)
+    NUM_INT         reduce using rule 39 (operador -> OP_SUB .)
+    STRING_DQ       reduce using rule 39 (operador -> OP_SUB .)
+    STRING_SQ       reduce using rule 39 (operador -> OP_SUB .)
+
+
+state 52
+
+    (40) operador -> OP_MUL .
+
+    ID              reduce using rule 40 (operador -> OP_MUL .)
+    NUM_INT         reduce using rule 40 (operador -> OP_MUL .)
+    STRING_DQ       reduce using rule 40 (operador -> OP_MUL .)
+    STRING_SQ       reduce using rule 40 (operador -> OP_MUL .)
+
+
+state 53
+
+    (41) operador -> OP_DIV .
+
+    ID              reduce using rule 41 (operador -> OP_DIV .)
+    NUM_INT         reduce using rule 41 (operador -> OP_DIV .)
+    STRING_DQ       reduce using rule 41 (operador -> OP_DIV .)
+    STRING_SQ       reduce using rule 41 (operador -> OP_DIV .)
+
+
+state 54
+
+    (42) operador -> OP_EQ .
+
+    ID              reduce using rule 42 (operador -> OP_EQ .)
+    NUM_INT         reduce using rule 42 (operador -> OP_EQ .)
+    STRING_DQ       reduce using rule 42 (operador -> OP_EQ .)
+    STRING_SQ       reduce using rule 42 (operador -> OP_EQ .)
+
+
+state 55
+
+    (43) operador -> OP_NE .
+
+    ID              reduce using rule 43 (operador -> OP_NE .)
+    NUM_INT         reduce using rule 43 (operador -> OP_NE .)
+    STRING_DQ       reduce using rule 43 (operador -> OP_NE .)
+    STRING_SQ       reduce using rule 43 (operador -> OP_NE .)
+
+
+state 56
+
+    (44) operador -> OP_LT .
+
+    ID              reduce using rule 44 (operador -> OP_LT .)
+    NUM_INT         reduce using rule 44 (operador -> OP_LT .)
+    STRING_DQ       reduce using rule 44 (operador -> OP_LT .)
+    STRING_SQ       reduce using rule 44 (operador -> OP_LT .)
+
+
+state 57
+
+    (45) operador -> OP_GT .
+
+    ID              reduce using rule 45 (operador -> OP_GT .)
+    NUM_INT         reduce using rule 45 (operador -> OP_GT .)
+    STRING_DQ       reduce using rule 45 (operador -> OP_GT .)
+    STRING_SQ       reduce using rule 45 (operador -> OP_GT .)
+
+
+state 58
+
+    (46) operador -> OP_QMARK .
+
+    ID              reduce using rule 46 (operador -> OP_QMARK .)
+    NUM_INT         reduce using rule 46 (operador -> OP_QMARK .)
+    STRING_DQ       reduce using rule 46 (operador -> OP_QMARK .)
+    STRING_SQ       reduce using rule 46 (operador -> OP_QMARK .)
+
+
+state 59
+
+    (29) while_stmt -> KW_WHILE LPAREN expressao . RPAREN LBRACE bloco RBRACE
+    (33) expressao -> expressao . operador termo
+    (38) operador -> . OP_ADD
+    (39) operador -> . OP_SUB
+    (40) operador -> . OP_MUL
+    (41) operador -> . OP_DIV
+    (42) operador -> . OP_EQ
+    (43) operador -> . OP_NE
+    (44) operador -> . OP_LT
+    (45) operador -> . OP_GT
+    (46) operador -> . OP_QMARK
+
+    RPAREN          shift and go to state 66
+    OP_ADD          shift and go to state 50
+    OP_SUB          shift and go to state 51
+    OP_MUL          shift and go to state 52
+    OP_DIV          shift and go to state 53
+    OP_EQ           shift and go to state 54
+    OP_NE           shift and go to state 55
+    OP_LT           shift and go to state 56
+    OP_GT           shift and go to state 57
+    OP_QMARK        shift and go to state 58
+
+    operador                       shift and go to state 49
+
+state 60
+
+    (30) retorno -> RETURN expressao SEMI .
+
+    ID              reduce using rule 30 (retorno -> RETURN expressao SEMI .)
+    INPUT           reduce using rule 30 (retorno -> RETURN expressao SEMI .)
+    OUTPUT          reduce using rule 30 (retorno -> RETURN expressao SEMI .)
+    KW_WHILE        reduce using rule 30 (retorno -> RETURN expressao SEMI .)
+    RETURN          reduce using rule 30 (retorno -> RETURN expressao SEMI .)
+    COMMENT         reduce using rule 30 (retorno -> RETURN expressao SEMI .)
+    KW_INT          reduce using rule 30 (retorno -> RETURN expressao SEMI .)
+    KW_FLOAT        reduce using rule 30 (retorno -> RETURN expressao SEMI .)
+    KW_CHAR         reduce using rule 30 (retorno -> RETURN expressao SEMI .)
+    KW_END          reduce using rule 30 (retorno -> RETURN expressao SEMI .)
+    KW_FUNCTION     reduce using rule 30 (retorno -> RETURN expressao SEMI .)
+    RBRACE          reduce using rule 30 (retorno -> RETURN expressao SEMI .)
+
+
+state 61
+
+    (21) lista_decl -> ID opt_init decl_cont .
+
+    SEMI            reduce using rule 21 (lista_decl -> ID opt_init decl_cont .)
+
+
+state 62
+
+    (23) decl_cont -> COMMA . lista_decl
+    (21) lista_decl -> . ID opt_init decl_cont
+
+    ID              shift and go to state 32
+
+    lista_decl                     shift and go to state 67
+
+state 63
+
+    (25) opt_init -> OP_ASSIGN expressao .
+    (33) expressao -> expressao . operador termo
+    (38) operador -> . OP_ADD
+    (39) operador -> . OP_SUB
+    (40) operador -> . OP_MUL
+    (41) operador -> . OP_DIV
+    (42) operador -> . OP_EQ
+    (43) operador -> . OP_NE
+    (44) operador -> . OP_LT
+    (45) operador -> . OP_GT
+    (46) operador -> . OP_QMARK
+
+    COMMA           reduce using rule 25 (opt_init -> OP_ASSIGN expressao .)
+    SEMI            reduce using rule 25 (opt_init -> OP_ASSIGN expressao .)
+    OP_ADD          shift and go to state 50
+    OP_SUB          shift and go to state 51
+    OP_MUL          shift and go to state 52
+    OP_DIV          shift and go to state 53
+    OP_EQ           shift and go to state 54
+    OP_NE           shift and go to state 55
+    OP_LT           shift and go to state 56
+    OP_GT           shift and go to state 57
+    OP_QMARK        shift and go to state 58
+
+    operador                       shift and go to state 49
+
+state 64
+
+    (26) atribuicao -> ID OP_ASSIGN expressao SEMI .
+
+    ID              reduce using rule 26 (atribuicao -> ID OP_ASSIGN expressao SEMI .)
+    INPUT           reduce using rule 26 (atribuicao -> ID OP_ASSIGN expressao SEMI .)
+    OUTPUT          reduce using rule 26 (atribuicao -> ID OP_ASSIGN expressao SEMI .)
+    KW_WHILE        reduce using rule 26 (atribuicao -> ID OP_ASSIGN expressao SEMI .)
+    RETURN          reduce using rule 26 (atribuicao -> ID OP_ASSIGN expressao SEMI .)
+    COMMENT         reduce using rule 26 (atribuicao -> ID OP_ASSIGN expressao SEMI .)
+    KW_INT          reduce using rule 26 (atribuicao -> ID OP_ASSIGN expressao SEMI .)
+    KW_FLOAT        reduce using rule 26 (atribuicao -> ID OP_ASSIGN expressao SEMI .)
+    KW_CHAR         reduce using rule 26 (atribuicao -> ID OP_ASSIGN expressao SEMI .)
+    KW_END          reduce using rule 26 (atribuicao -> ID OP_ASSIGN expressao SEMI .)
+    KW_FUNCTION     reduce using rule 26 (atribuicao -> ID OP_ASSIGN expressao SEMI .)
+    RBRACE          reduce using rule 26 (atribuicao -> ID OP_ASSIGN expressao SEMI .)
+
+
+state 65
+
+    (33) expressao -> expressao operador termo .
+
+    SEMI            reduce using rule 33 (expressao -> expressao operador termo .)
+    OP_ADD          reduce using rule 33 (expressao -> expressao operador termo .)
+    OP_SUB          reduce using rule 33 (expressao -> expressao operador termo .)
+    OP_MUL          reduce using rule 33 (expressao -> expressao operador termo .)
+    OP_DIV          reduce using rule 33 (expressao -> expressao operador termo .)
+    OP_EQ           reduce using rule 33 (expressao -> expressao operador termo .)
+    OP_NE           reduce using rule 33 (expressao -> expressao operador termo .)
+    OP_LT           reduce using rule 33 (expressao -> expressao operador termo .)
+    OP_GT           reduce using rule 33 (expressao -> expressao operador termo .)
+    OP_QMARK        reduce using rule 33 (expressao -> expressao operador termo .)
+    RPAREN          reduce using rule 33 (expressao -> expressao operador termo .)
+    COMMA           reduce using rule 33 (expressao -> expressao operador termo .)
+
+
+state 66
+
+    (29) while_stmt -> KW_WHILE LPAREN expressao RPAREN . LBRACE bloco RBRACE
+
+    LBRACE          shift and go to state 68
+
+
+state 67
+
+    (23) decl_cont -> COMMA lista_decl .
+
+    SEMI            reduce using rule 23 (decl_cont -> COMMA lista_decl .)
+
+
+state 68
+
+    (29) while_stmt -> KW_WHILE LPAREN expressao RPAREN LBRACE . bloco RBRACE
+    (7) bloco -> . lista_comandos
+    (8) lista_comandos -> .
+    (9) lista_comandos -> . lista_comandos comando
+
+    ID              reduce using rule 8 (lista_comandos -> .)
+    INPUT           reduce using rule 8 (lista_comandos -> .)
+    OUTPUT          reduce using rule 8 (lista_comandos -> .)
+    KW_WHILE        reduce using rule 8 (lista_comandos -> .)
+    RETURN          reduce using rule 8 (lista_comandos -> .)
+    COMMENT         reduce using rule 8 (lista_comandos -> .)
+    KW_INT          reduce using rule 8 (lista_comandos -> .)
+    KW_FLOAT        reduce using rule 8 (lista_comandos -> .)
+    KW_CHAR         reduce using rule 8 (lista_comandos -> .)
+    RBRACE          reduce using rule 8 (lista_comandos -> .)
+
+    bloco                          shift and go to state 69
+    lista_comandos                 shift and go to state 12
+
+state 69
+
+    (29) while_stmt -> KW_WHILE LPAREN expressao RPAREN LBRACE bloco . RBRACE
+
+    RBRACE          shift and go to state 70
+
+
+state 70
+
+    (29) while_stmt -> KW_WHILE LPAREN expressao RPAREN LBRACE bloco RBRACE .
+
+    ID              reduce using rule 29 (while_stmt -> KW_WHILE LPAREN expressao RPAREN LBRACE bloco RBRACE .)
+    INPUT           reduce using rule 29 (while_stmt -> KW_WHILE LPAREN expressao RPAREN LBRACE bloco RBRACE .)
+    OUTPUT          reduce using rule 29 (while_stmt -> KW_WHILE LPAREN expressao RPAREN LBRACE bloco RBRACE .)
+    KW_WHILE        reduce using rule 29 (while_stmt -> KW_WHILE LPAREN expressao RPAREN LBRACE bloco RBRACE .)
+    RETURN          reduce using rule 29 (while_stmt -> KW_WHILE LPAREN expressao RPAREN LBRACE bloco RBRACE .)
+    COMMENT         reduce using rule 29 (while_stmt -> KW_WHILE LPAREN expressao RPAREN LBRACE bloco RBRACE .)
+    KW_INT          reduce using rule 29 (while_stmt -> KW_WHILE LPAREN expressao RPAREN LBRACE bloco RBRACE .)
+    KW_FLOAT        reduce using rule 29 (while_stmt -> KW_WHILE LPAREN expressao RPAREN LBRACE bloco RBRACE .)
+    KW_CHAR         reduce using rule 29 (while_stmt -> KW_WHILE LPAREN expressao RPAREN LBRACE bloco RBRACE .)
+    KW_END          reduce using rule 29 (while_stmt -> KW_WHILE LPAREN expressao RPAREN LBRACE bloco RBRACE .)
+    KW_FUNCTION     reduce using rule 29 (while_stmt -> KW_WHILE LPAREN expressao RPAREN LBRACE bloco RBRACE .)
+    RBRACE          reduce using rule 29 (while_stmt -> KW_WHILE LPAREN expressao RPAREN LBRACE bloco RBRACE .)
 

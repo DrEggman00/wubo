@@ -1,0 +1,7 @@
+func MAIN begin
+print "HELLO WORLD!"
+print "WHAT'S YOUR NAME?"
+read NAME
+t0 = "HELLO," + NAME
+print t0
+func MAIN end

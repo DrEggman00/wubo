@@ -1,0 +1,29 @@
+MAIN:
+    ; prologue
+    push rbp
+    mov rbp, rsp
+    ; print
+    push ""HELLO WORLD!""
+    pop rax
+    call print_int
+    ; print
+    push ""WHAT'S YOUR NAME?""
+    pop rax
+    call print_int
+    ; read
+    call read_int
+    mov [mem+0], rax
+    ; t0 = ('str', '"HELLO,"') + NAME
+    push ""HELLO,""
+    push [mem+0]
+    pop rbx
+    pop rax
+    mov [mem+1], rax
+    ; print
+    push [mem+1]
+    pop rax
+    call print_int
+    ; epilogue
+    mov rsp, rbp
+    pop rbp
+    ret

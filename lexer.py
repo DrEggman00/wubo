@@ -8,6 +8,7 @@ tokens = [
 
     # Literais
     "NUM_INT", "STRING_DQ", "STRING_SQ", "ID",
+    "INPUT", "OUTPUT", "RETURN", "COMMENT",
 
     # Operadores
     "OP_EQ", "OP_NE", "OP_ARROW",
@@ -21,7 +22,6 @@ tokens = [
 
 # Estados
 states = (
-    ('COMMENT', 'exclusive'),
     ('AFTEREND', 'exclusive'),
 )
 
@@ -37,29 +37,12 @@ t_ignore = " \t\r\n"
 # ESTADO: COMENTÁRIO
 # ---------------------------
 
-# Entrada no estado COMMENT
-def t_COMMENT_enter(t):
-    r"/:"
-    t.lexer.begin("COMMENT")
-
-# Fim do comentário
-def t_COMMENT_end(t):
-    r":/"
-    t.lexer.begin("INITIAL")
-
-# Ignorar tudo dentro do comentário
-t_COMMENT_ignore = " \t\r\n"
-
-# Consumir qualquer outro caractere dentro do comentário
-def t_COMMENT_any(t):
-    r"."
-    pass
-
-# Erro dentro do comentário
-def t_COMMENT_error(t):
-    t.lexer.skip(1)
-
-t_ignore_COMMENT = " \t\r\n"
+# Comentário de bloco delimitado por /: ... :/ ou comentário de linha opcional
+def t_COMMENT(t):
+    r"/:[\s\S]*?:/"
+    # remove os delimitadores e retorna texto do comentário
+    t.value = t.value[2:-2]
+    return tk("COMMENT", t)
 
 
 # ---------------------------
@@ -112,6 +95,22 @@ def t_KW_END(t):
     r"END"
     t.lexer.begin("AFTEREND")
     return tk("KW_END", t)
+
+
+# ---------------------------
+# Tokens adicionais
+# ---------------------------
+def t_INPUT(t):
+    r"INPUT"
+    return tk("INPUT", t)
+
+def t_OUTPUT(t):
+    r"OUTPUT"
+    return tk("OUTPUT", t)
+
+def t_RETURN(t):
+    r"RETURN"
+    return tk("RETURN", t)
 
 
 # ===================================

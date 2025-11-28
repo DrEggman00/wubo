@@ -1,0 +1,12 @@
+Program
+  Function: MAIN
+    Block
+      Output:
+        String: "HELLO WORLD!"
+      Output:
+        String: "WHAT'S YOUR NAME?"
+      Input: NAME
+      Output:
+        BinaryOp: +
+          String: "HELLO,"
+          Identifier: NAME
